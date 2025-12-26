@@ -161,11 +161,23 @@ function buildPuzzle(text) {
 }
 
 function handleAssignment(encoded, decoded) {
+  decoded = decoded.toUpperCase();
+
   if (!decoded.match(/[A-Z]/)) {
     delete mapping[encoded];
   } else {
     mapping[encoded] = decoded;
   }
+
+  // Update ALL inputs for this encoded letter
+  document.querySelectorAll(".letter-cell").forEach(cell => {
+    const cellEncoded = cell.lastChild.textContent;
+    const input = cell.querySelector("input");
+
+    if (cellEncoded === encoded) {
+      input.value = mapping[encoded] || "";
+    }
+  });
 
   validateConflicts();
   updateLettersRemaining();
