@@ -25,7 +25,8 @@
   /* ----- Layout ----- */
   .layout {
     display: flex;
-    gap: 24px;
+    gap: 20px;
+    align-items: flex-start;
   }
 
   .main-column {
@@ -33,17 +34,16 @@
   }
 
   .stats-column {
-    width: 200px;
+    width: 140px;
     border: 1px solid #ccc;
-    padding: 12px;
+    padding: 10px;
     border-radius: 6px;
     background: #fafafa;
+    text-align: center;
   }
 
   .stats-column h4 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    text-align: center;
+    margin: 0 0 10px;
     font-weight: 600;
   }
 
@@ -76,8 +76,13 @@
   .puzzle {
     font-family: monospace;
     font-size: 18px;
-    line-height: 2.2;
-    word-wrap: break-word;
+    line-height: 2.4;
+  }
+
+  .word {
+    display: inline-block;
+    white-space: nowrap;
+    margin-right: 10px;
   }
 
   .letter-cell {
@@ -95,11 +100,6 @@
 
   .conflict input {
     background: #ffcccc;
-  }
-
-  .space {
-    width: 12px;
-    display: inline-block;
   }
 </style>
 </head>
@@ -163,7 +163,7 @@ function buildStats(text) {
     .sort()
     .forEach(letter => {
       const span = document.createElement("span");
-      span.textContent = `${letter} - ${counts[letter]}`;
+      span.textContent = `${letter} — ${counts[letter]}`;
       statsDiv.appendChild(span);
     });
 }
@@ -171,33 +171,43 @@ function buildStats(text) {
 function buildPuzzle(text) {
   puzzleDiv.innerHTML = "";
 
-  [...text].forEach(ch => {
-    if (/[A-Z]/.test(ch)) {
-      const cell = document.createElement("div");
-      cell.className = "letter-cell";
+  const words = text.split(/(\s+)/);
 
-      const input = document.createElement("input");
-      input.maxLength = 1;
-
-      input.addEventListener("input", e => {
-        handleAssignment(ch, e.target.value);
-      });
-
-      const letter = document.createElement("div");
-      letter.textContent = ch;
-
-      cell.appendChild(input);
-      cell.appendChild(letter);
-      puzzleDiv.appendChild(cell);
-    } else if (ch === " ") {
-      const space = document.createElement("div");
-      space.className = "space";
-      puzzleDiv.appendChild(space);
-    } else {
-      const punct = document.createElement("span");
-      punct.textContent = ch;
-      puzzleDiv.appendChild(punct);
+  words.forEach(word => {
+    if (/^\s+$/.test(word)) {
+      puzzleDiv.appendChild(document.createTextNode(word));
+      return;
     }
+
+    const wordDiv = document.createElement("div");
+    wordDiv.className = "word";
+
+    [...word].forEach(ch => {
+      if (/[A-Z]/.test(ch)) {
+        const cell = document.createElement("div");
+        cell.className = "letter-cell";
+
+        const input = document.createElement("input");
+        input.maxLength = 1;
+
+        input.addEventListener("input", e => {
+          handleAssignment(ch, e.target.value);
+        });
+
+        const letter = document.createElement("div");
+        letter.textContent = ch;
+
+        cell.appendChild(input);
+        cell.appendChild(letter);
+        wordDiv.appendChild(cell);
+      } else {
+        const punct = document.createElement("span");
+        punct.textContent = ch;
+        wordDiv.appendChild(punct);
+      }
+    });
+
+    puzzleDiv.appendChild(wordDiv);
   });
 }
 
@@ -210,7 +220,6 @@ function handleAssignment(encoded, decoded) {
     mapping[encoded] = decoded;
   }
 
-  // Update all matching inputs
   document.querySelectorAll(".letter-cell").forEach(cell => {
     const cellEncoded = cell.lastChild.textContent;
     const input = cell.querySelector("input");
