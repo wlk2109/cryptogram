@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>Cryptogram Solver</title>
+
 <style>
   body {
     font-family: system-ui, sans-serif;
@@ -21,9 +22,41 @@
     margin-top: 24px;
   }
 
+  /* ----- Layout ----- */
+  .layout {
+    display: flex;
+    gap: 24px;
+  }
+
+  .main-column {
+    flex: 1;
+  }
+
+  .stats-column {
+    width: 200px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+
+  .stats-column h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* ----- Letters Remaining ----- */
+  .letters-section h4 {
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
   .letters-remaining span {
     display: inline-block;
-    margin-right: 6px;
+    font-size: 20px;
+    margin-right: 8px;
     font-weight: bold;
   }
 
@@ -32,10 +65,14 @@
     text-decoration: line-through;
   }
 
+  /* ----- Stats ----- */
   .stats span {
-    margin-right: 12px;
+    display: block;
+    margin-bottom: 6px;
+    font-family: monospace;
   }
 
+  /* ----- Puzzle ----- */
   .puzzle {
     font-family: monospace;
     font-size: 18px;
@@ -66,28 +103,33 @@
   }
 </style>
 </head>
+
 <body>
 
 <h1>Cryptogram Solver</h1>
 
+<!-- Encoded Message -->
 <div class="section">
   <h3>Encoded Message</h3>
   <textarea id="inputText" placeholder="Paste cryptogram here..."></textarea>
 </div>
 
-<div class="section">
-  <h3>Letters Remaining</h3>
-  <div class="letters-remaining" id="lettersRemaining"></div>
-</div>
+<!-- Solve + Stats Layout -->
+<div class="section layout">
+  <div class="main-column">
+    <h3>Solve</h3>
+    <div class="puzzle" id="puzzle"></div>
 
-<div class="section">
-  <h3>Letter Frequency</h3>
-  <div class="stats" id="stats"></div>
-</div>
+    <div class="letters-section">
+      <h4>Letters Remaining</h4>
+      <div class="letters-remaining" id="lettersRemaining"></div>
+    </div>
+  </div>
 
-<div class="section">
-  <h3>Solve</h3>
-  <div class="puzzle" id="puzzle"></div>
+  <div class="stats-column">
+    <h4>Letter Frequency</h4>
+    <div class="stats" id="stats"></div>
+  </div>
 </div>
 
 <script>
@@ -138,8 +180,7 @@ function buildPuzzle(text) {
       input.maxLength = 1;
 
       input.addEventListener("input", e => {
-        const val = e.target.value.toUpperCase();
-        handleAssignment(ch, val);
+        handleAssignment(ch, e.target.value);
       });
 
       const letter = document.createElement("div");
@@ -169,7 +210,7 @@ function handleAssignment(encoded, decoded) {
     mapping[encoded] = decoded;
   }
 
-  // Update ALL inputs for this encoded letter
+  // Update all matching inputs
   document.querySelectorAll(".letter-cell").forEach(cell => {
     const cellEncoded = cell.lastChild.textContent;
     const input = cell.querySelector("input");
@@ -217,3 +258,4 @@ function updateLettersRemaining() {
 
 </body>
 </html>
+
